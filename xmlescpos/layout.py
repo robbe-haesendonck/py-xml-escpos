@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import time
-import copy
 import io
 import base64
 import math
 import md5
 import re
-import traceback
 import xml.etree.ElementTree as ET
-import xml.dom.minidom as minidom
 
 from escpos.constants import *
 
@@ -323,8 +319,6 @@ class Layout(object):
         Layout(xml).format(epson)
     """
 
-    device = None
-    encoding = None
     img_cache = {}
 
     def __init__(self, xml):
@@ -524,8 +518,10 @@ class Layout(object):
 
         elif elem.tag == 'cut':
             printer.cut()
+
         elif elem.tag == 'partialcut':
             printer.cut(mode='part')
+
         elif elem.tag == 'cashdraw':
             printer.cashdraw(2)
             printer.cashdraw(5)
