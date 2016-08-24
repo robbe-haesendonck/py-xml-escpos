@@ -3,8 +3,7 @@
 
 XML-ESC/POS is a simple python library that allows you to
 print receipts on ESC/POS Compatible receipt printers with a simple utf8 
-encoded XML format similar to HTML. Barcode, pictures, 
-text encoding are automatically handled. No more dicking
+encoded XML format similar to HTML. No more dicking
 around with esc-pos commands !
 
 The following example is self-explanatory: 
@@ -28,23 +27,20 @@ The following example is self-explanatory:
         <cut />
     </receipt>
 
-And printing from python is quite easy, you just
-need the USB product / vendor id of your printer. 
-Some common ids are found in `supported_devices.py`
 
-    from xmlescpos.printer import Usb
-    printer = Usb(0x04b8,0x0e03)
-    printer.receipt("<div>Hello World!</div>")
+It uses python-escpos internally. So to print it, you'd do:
+
+    from escpos import printer
+    from xmlescpos import Layout
+    epson = printer.Dummy()  # Or directly to USB, Serial, Network
+
+    Layout(xml).format(epson)
+
 
 ## Install
 
     sudo pip install pyxmlescpos
 
-## Limitations
-
-The utf8 support is incomplete, mostly asian languages
-are not working. Documentation is hard to find, support relies on region-specific hardware, etc. There is some very basic 
-support for Japanese.
 
 # Documentation
 ## XML Structure

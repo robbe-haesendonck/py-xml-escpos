@@ -1,4 +1,3 @@
-
 XML-ESC/POS
 ===========
 
@@ -31,15 +30,3 @@ example is self-explanatory:
     from xmlescpos.printer import Usb
     printer = Usb(0x04b8,0x0e03)
     printer.receipt("<div>Hello World!</div>")
-
-Limitations
------------
-The utf8 support is incomplete, mostly asian languages
-are not working since they are badly documented and
-only supported by region-specific hardware.
-
-This is also the very first release, which is a simple
-extraction from the Odoo code base. While it works well,
-it needs some cleanup for public use.
-
-Also, the doc is non-existent. 
