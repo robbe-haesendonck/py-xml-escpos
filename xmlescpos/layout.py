@@ -6,6 +6,7 @@ import math
 import md5
 import re
 import xml.etree.ElementTree as ET
+from PIL import Image
 
 from escpos.constants import *
 
@@ -331,8 +332,7 @@ class Layout(object):
         self.open_crashdrawer = 'open-cashdrawer' in root.attrib and \
             root.attrib['open-cashdrawer'] == 'true'
 
-    def print_base64_image(self, img):
-
+    def get_base64_image(self, img):
         id = md5.new(img).digest()
 
         if id not in self.img_cache:
@@ -343,18 +343,16 @@ class Layout(object):
             img_rgba = Image.open(f)
             img = Image.new('RGB', img_rgba.size, (255, 255, 255))
             channels = img_rgba.split()
+
             if len(channels) > 1:
                 # use alpha channel as mask
                 img.paste(img_rgba, mask=channels[3])
             else:
                 img.paste(img_rgba)
 
-            pix_line, img_size = self._convert_image(img)
+            self.img_cache[id] = img
 
-            buffer = self._raw_print_image(pix_line, img_size)
-            self.img_cache[id] = buffer
-
-        self._raw(self.img_cache[id])
+        return self.img_cache[id]
 
     def print_elem(self, stylestack, serializer, elem, printer, indent=0):
         """Recursively print an element in the document.
@@ -509,7 +507,7 @@ class Layout(object):
 
         elif elem.tag == 'img':
             if 'src' in elem.attrib and 'data:' in elem.attrib['src']:
-                self.print_base64_image(elem.attrib['src'])
+                printer.image(self.get_base64_image(elem.attrib['src']))
 
         elif elem.tag == 'barcode' and 'encoding' in elem.attrib:
             serializer.start_block(stylestack)
