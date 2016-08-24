@@ -557,7 +557,7 @@ class Layout(object):
             self.cashdraw(2)
             self.cashdraw(5)
 
-        if not 'cut' in root.attrib or root.attrib['cut'] == 'true':
+        if 'cut' in root.attrib and root.attrib['cut'] == 'true':
             if self.slip_sheet_mode:
                 printer._raw(CTL_FF)
             else:
