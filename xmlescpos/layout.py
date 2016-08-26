@@ -11,13 +11,6 @@ from PIL import Image
 from escpos.constants import *
 
 
-# python-escpos is currently missing these - add them there
-TXT_COLOR_BLACK = ESC + '\x72\x00'  # Default Color
-TXT_COLOR_RED = ESC + '\x72\x01'  # Alternative Color ( Usually Red )
-SHEET_SLIP_MODE = ESC + '\x63\x30\x04'  # Print ticket on injet slip paper
-SHEET_ROLL_MODE = ESC + '\x63\x30\x01'  # Print ticket on paper roll
-
-
 def utfstr(stuff):
     """ converts stuff to string and does without failing if stuff is a utf8 string """
     if isinstance(stuff, basestring):
