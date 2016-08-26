@@ -37,6 +37,16 @@ It uses python-escpos internally. So to print it, you'd do:
     Layout(xml).format(epson)
 
 
+## Ideas for future support:
+
+- Make the <line> tag much more powerful; support text wrapping in
+  the columns; different styles on each side.
+
+- Support borders.
+
+- Be closer to real HTML, i.e. have a <div> tag. <line> could
+  have an auto-ratio mode, and become flexbox.
+
 ## Install
 
     sudo pip install pyxmlescpos
