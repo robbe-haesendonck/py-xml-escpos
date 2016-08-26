@@ -23,9 +23,13 @@ class StyleStack:
     """As we move through the the layout document, this keeps track of
     the changing styles. We then can push the current desired styles
     to the printer.
+
+    The "width" has a special "auto" value, which will read the
+    column width for the current font from the printer profile.
     """
 
-    def __init__(self):
+    def __init__(self, profile):
+        self.profile = profile
         self.stack = []
         self.defaults = {   # default style values
             'align': 'left',
@@ -33,7 +37,7 @@ class StyleStack:
             'bold': 'off',
             'size': 'normal',
             'font': 'a',
-            'width': 48,
+            'width': 'auto',
             'indent': 0,
             'tabwidth': 2,
             'bullet': ' - ',
@@ -50,7 +54,7 @@ class StyleStack:
         }
 
         self.types = {  # attribute types, default is string and can be ommitted
-            'width': 'int',
+            'width': lambda v: v if v == 'auto' else int(v),
             'indent': 'int',
             'tabwidth': 'int',
             'line-ratio': 'float',
@@ -106,7 +110,7 @@ class StyleStack:
 
         self.push(self.defaults)
 
-    def get(self, style):
+    def _get(self, style):
         """ what's the value of a style at the current stack level"""
         level = len(self.stack) - 1
         while level >= 0:
@@ -116,6 +120,16 @@ class StyleStack:
                 level = level - 1
         return None
 
+    def get(self, style):
+        value = self._get(style)
+
+        if style == 'width' and value == 'auto':
+            font = self._get('font')
+            return self.profile.get_columns(font)
+
+        return value
+
+
     def enforce_type(self, attr, val):
         """converts a value to the attribute's type"""
         if attr not in self.types:
@@ -124,6 +138,8 @@ class StyleStack:
             return int(float(val))
         elif self.types[attr] == 'float':
             return float(val)
+        elif callable(self.types[attr]):
+            return self.types[attr](val)
         else:
             return utfstr(val)
 
@@ -523,7 +539,7 @@ class Layout(object):
         """Format the layout to print on the given printer driver.
         """
 
-        stylestack = StyleStack()
+        stylestack = StyleStack(printer.profile)
         serializer = XmlSerializer(printer)
         root = self._root
 
