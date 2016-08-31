@@ -101,11 +101,11 @@ class StyleStack:
                 'double': TXT_4SQUARE,
                 '_order': 1,
             },
-            'color': {
-                'black': TXT_COLOR_BLACK,
-                'red': TXT_COLOR_RED,
-                '_order': 1,
-            }
+            # 'color': {
+            #     'black': 'TXT_COLOR_BLACK',
+            #     'red': 'TXT_COLOR_RED',
+            #     '_order': 1,
+            # }
         }
 
         self.push(self.defaults)
@@ -508,7 +508,7 @@ class Layout(object):
             if stylestack.get('size') in ('double', 'double-width'):
                 width = width / 2
             serializer.start_block(stylestack)
-            serializer.text('-' * width)
+            serializer.text(u'─' * width)
             serializer.end_entity()
 
         elif elem.tag == 'br':
@@ -544,10 +544,10 @@ class Layout(object):
         root = self._root
 
         # Init the mode
-        if self.slip_sheet_mode:
-            printer._raw(SHEET_SLIP_MODE)
-        else:
-            printer._raw(SHEET_ROLL_MODE)
+        # if self.slip_sheet_mode:
+        #     printer._raw(SHEET_SLIP_MODE)
+        # else:
+        #     printer._raw(SHEET_ROLL_MODE)
 
         # init tye styles
         printer._raw(stylestack.to_escpos())
