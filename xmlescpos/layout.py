@@ -102,8 +102,8 @@ class StyleStack:
                 '_order': 1,
             },
             'color': {
-                'black': 'TXT_COLOR_BLACK',
-                'red': 'TXT_COLOR_RED',
+                'black': TXT_COLOR_BLACK,
+                'red': TXT_COLOR_RED,
                 '_order': 1,
             }
         }
