@@ -10,6 +10,9 @@ from PIL import Image
 
 from escpos.constants import *
 
+import logging
+_logger = logging.getLogger(__name__)
+
 
 def utfstr(stuff):
     """ converts stuff to string and does without failing if stuff is a utf8 string """
@@ -148,7 +151,7 @@ class StyleStack:
         _style = {}
         for attr in style:
             if attr in self.cmds and not style[attr] in self.cmds[attr]:
-                print 'WARNING: ESC/POS PRINTING: ignoring invalid value: ' + utfstr(style[attr]) + ' for style: ' + utfstr(attr)
+                _logger.warn('WARNING: ESC/POS PRINTING: ignoring invalid value: ' + utfstr(style[attr]) + ' for style: ' + utfstr(attr))
             else:
                 _style[attr] = self.enforce_type(attr, style[attr])
         self.stack.append(_style)
@@ -158,7 +161,7 @@ class StyleStack:
         _style = {}
         for attr in style:
             if attr in self.cmds and not style[attr] in self.cmds[attr]:
-                print 'WARNING: ESC/POS PRINTING: ignoring invalid value: ' + utfstr(style[attr]) + ' for style: ' + utfstr(attr)
+                _logger.warn('WARNING: ESC/POS PRINTING: ignoring invalid value: ' + utfstr(style[attr]) + ' for style: ' + utfstr(attr))
             else:
                 self.stack[-1][attr] = self.enforce_type(attr, style[attr])
 
@@ -350,16 +353,16 @@ class Layout(object):
             f.write(base64.decodestring(img))
             f.seek(0)
             img_rgba = Image.open(f)
-            img = Image.new('RGB', img_rgba.size, (255, 255, 255))
-            channels = img_rgba.split()
+            #img = Image.new('RGB', img_rgba.size, (255, 255, 255))
+            #channels = img_rgba.split()
 
-            if len(channels) > 1:
-                # use alpha channel as mask
-                img.paste(img_rgba, mask=channels[3])
-            else:
-                img.paste(img_rgba)
+            #if len(channels) > 1:
+                ## use alpha channel as mask
+                #img.paste(img_rgba, mask=channels[3])
+            #else:
+                #img.paste(img_rgba)
 
-            self.img_cache[id] = img
+            self.img_cache[id] = img_rgba
 
         return self.img_cache[id]
 
@@ -557,8 +560,8 @@ class Layout(object):
 
         # Finalize print actions: cut paper, open cashdrawer
         if self.open_crashdrawer:
-            self.cashdraw(2)
-            self.cashdraw(5)
+            self.printer.cashdraw(2)
+            self.printer.cashdraw(5)
 
         if 'cut' in root.attrib and root.attrib['cut'] == 'true':
             if self.slip_sheet_mode:
