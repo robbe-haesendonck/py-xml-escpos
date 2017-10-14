@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
 import io
 import base64
 import math
-import md5
+import hashlib
 import re
 import xml.etree.ElementTree as ET
 from PIL import Image
@@ -11,12 +12,13 @@ from PIL import Image
 from escpos.constants import *
 
 import logging
+import six
 _logger = logging.getLogger(__name__)
 
 
 def utfstr(stuff):
     """ converts stuff to string and does without failing if stuff is a utf8 string """
-    if isinstance(stuff, basestring):
+    if isinstance(stuff, six.string_types):
         return stuff
     else:
         return str(stuff)
@@ -173,7 +175,7 @@ class StyleStack:
     def to_escpos(self):
         """ converts the current style to an escpos command string """
         cmd = ''
-        ordered_cmds = self.cmds.keys()
+        ordered_cmds = list(self.cmds.keys())
         ordered_cmds.sort(
             lambda x,
             y: cmp(
@@ -345,7 +347,7 @@ class Layout(object):
             root.attrib['open-cashdrawer'] == 'true'
 
     def get_base64_image(self, img):
-        id = md5.new(img).digest()
+        id = hashlib.md5(img).hexdigest()
 
         if id not in self.img_cache:
             img = img[img.find(',') + 1:]
