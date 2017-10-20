@@ -174,13 +174,10 @@ class StyleStack:
 
     def to_escpos(self):
         """ converts the current style to an escpos command string """
-        cmd = ''
+        cmd = b''
         ordered_cmds = list(self.cmds.keys())
         ordered_cmds.sort(
-            lambda x,
-            y: cmp(
-                self.cmds[x]['_order'],
-                self.cmds[y]['_order']))
+            key=lambda x: self.cmds[x]['_order'])
         for style in ordered_cmds:
             cmd += self.cmds[style][self.get(style)]
         return cmd
@@ -202,14 +199,14 @@ class XmlSerializer:
         """ starts an inline entity with an optional style definition """
         self.stack.append('inline')
         if self.dirty:
-            self.printer._raw(' ')
+            self.printer._raw(b' ')
         if stylestack:
             self.style(stylestack)
 
     def start_block(self, stylestack=None):
         """ starts a block entity with an optional style definition """
         if self.dirty:
-            self.printer._raw('\n')
+            self.printer._raw(b'\n')
             self.dirty = False
         self.stack.append('block')
         if stylestack:
@@ -218,7 +215,7 @@ class XmlSerializer:
     def end_entity(self):
         """ ends the entity definition. (but does not cancel the active style!) """
         if self.stack[-1] == 'block' and self.dirty:
-            self.printer._raw('\n')
+            self.printer._raw(b'\n')
             self.dirty = False
         if len(self.stack) > 1:
             self.stack = self.stack[:-1]
@@ -242,7 +239,7 @@ class XmlSerializer:
     def linebreak(self):
         """ inserts a linebreak in the entity """
         self.dirty = False
-        self.printer._raw('\n')
+        self.printer._raw(b'\n')
 
     def style(self, stylestack):
         """ apply a style to the entity (only applies to content added after the definition) """
