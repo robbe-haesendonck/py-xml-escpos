@@ -6,3 +6,4 @@
 *.swo
 
 pyxmlescpos.egg-info/
+venv/

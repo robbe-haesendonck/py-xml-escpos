@@ -40,7 +40,7 @@ class StyleStack:
             'align': 'left',
             'underline': 'off',
             'bold': 'off',
-            'size': 'normal',
+            'font-size': 'normal',
             'font': 'a',
             'width': 'auto',
             'indent': 0,
@@ -72,43 +72,43 @@ class StyleStack:
             # some style do not correspond to escpos command are used by
             # the serializer instead
             'align': {
-                'left': TXT_ALIGN_LT,
-                'right': TXT_ALIGN_RT,
-                'center': TXT_ALIGN_CT,
+                'left': TXT_STYLE["align"]["left"],
+                'right': TXT_STYLE["align"]["right"],
+                'center': TXT_STYLE["align"]["center"],
                 '_order': 1,
             },
             'underline': {
-                'off': TXT_UNDERL_OFF,
-                'on': TXT_UNDERL_ON,
-                'double': TXT_UNDERL2_ON,
+                'off': TXT_STYLE["underline"][0],
+                'on': TXT_STYLE["underline"][1],
+                'double': TXT_STYLE["underline"][2],
                 # must be issued after 'size' command
                 # because ESC ! resets ESC -
                 '_order': 10,
             },
             'bold': {
-                'off': TXT_BOLD_OFF,
-                'on': TXT_BOLD_ON,
+                'off': TXT_STYLE["bold"][False],
+                'on': TXT_STYLE["bold"][True],
                 # must be issued after 'size' command
                 # because ESC ! resets ESC -
                 '_order': 10,
             },
             'font': {
-                'a': TXT_FONT_A,
-                'b': TXT_FONT_B,
+                'a': TXT_STYLE["font"]["a"],
+                'b': TXT_STYLE["font"]["b"],
                 # must be issued after 'size' command
                 # because ESC ! resets ESC -
                 '_order': 10,
             },
-            'size': {
-                'normal': TXT_NORMAL,
-                'double-height': TXT_2HEIGHT,
-                'double-width': TXT_2WIDTH,
-                'double': TXT_4SQUARE,
+            'font-size': {
+                'normal': TXT_STYLE["size"]["normal"],
+                'double-height': TXT_STYLE["size"]["2h"],
+                'double-width': TXT_STYLE["size"]["2w"],
+                'double': TXT_STYLE["size"]["2x"],
                 '_order': 1,
             },
             'color': {
-                'black': TXT_COLOR_BLACK,
-                'red': TXT_COLOR_RED,
+                'black': TXT_STYLE["color"]["black"],
+                'red': TXT_STYLE["color"]["red"],
                 '_order': 1,
             }
         }
@@ -343,13 +343,13 @@ class Layout(object):
         self.open_crashdrawer = 'open-cashdrawer' in root.attrib and \
             root.attrib['open-cashdrawer'] == 'true'
 
-    def get_base64_image(self, img):
-        id = hashlib.md5(img).hexdigest()
+    def get_base64_image(self, img: str):
+        id = hashlib.md5(img.encode()).hexdigest()
 
         if id not in self.img_cache:
             img = img[img.find(',') + 1:]
-            f = io.BytesIO('img')
-            f.write(base64.decodestring(img))
+            f = io.BytesIO(b'img')
+            f.write(base64.b64decode(img))
             f.seek(0)
             img_rgba = Image.open(f)
             #img = Image.new('RGB', img_rgba.size, (255, 255, 255))
@@ -370,10 +370,10 @@ class Layout(object):
         """
 
         elem_styles = {
-            'h1': {'bold': 'on', 'size': 'double'},
-            'h2': {'size': 'double'},
-            'h3': {'bold': 'on', 'size': 'double-height'},
-            'h4': {'size': 'double-height'},
+            'h1': {'bold': 'on', 'font-size': 'double'},
+            'h2': {'font-size': 'double'},
+            'h3': {'bold': 'on', 'font-size': 'double-height'},
+            'h4': {'font-size': 'double-height'},
             'h5': {'bold': 'on'},
             'em': {'font': 'b'},
             'b': {'bold': 'on'},
@@ -434,7 +434,7 @@ class Layout(object):
 
         elif elem.tag == 'line':
             width = stylestack.get('width')
-            if stylestack.get('size') in ('double', 'double-width'):
+            if stylestack.get('font-size') in ('double', 'double-width'):
                 width = width / 2
 
             lineserializer = XmlLineSerializer(
@@ -507,7 +507,7 @@ class Layout(object):
 
         elif elem.tag == 'hr':
             width = stylestack.get('width')
-            if stylestack.get('size') in ('double', 'double-width'):
+            if stylestack.get('font-size') in ('double', 'double-width'):
                 width = width / 2
             serializer.start_block(stylestack)
             serializer.text(u'─' * width)
@@ -522,7 +522,14 @@ class Layout(object):
 
         elif elem.tag == 'barcode' and 'encoding' in elem.attrib:
             serializer.start_block(stylestack)
-            printer.barcode(strclean(elem.text), elem.attrib['encoding'])
+            printer.barcode(strclean(elem.text), elem.attrib['encoding'].upper())
+            serializer.end_entity()
+
+        elif elem.tag == 'qr':
+            serializer.start_block(stylestack)
+            qr_size = 3 # Default to 3
+            if 'size' in elem.attrib: qr_size = int(elem.attrib['size'])
+            printer.qr(strclean(elem.text), size=qr_size)
             serializer.end_entity()
 
         elif elem.tag == 'cut':
