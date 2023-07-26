@@ -17,7 +17,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/development.html#single-sourcing-the-version
-    version='0.2.0',
+    version='0.2.1',
 
     description='Print XML-defined Receipts on ESC/POS Receipt Printers',
     long_description=long_description,
@@ -66,7 +66,7 @@ setup(
     # project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/technical.html#install-requires-vs-requirements-files
-    install_requires=['python-escpos', 'six'],
+    install_requires=['python-escpos==3.0a9', 'six'],
 
     # List additional groups of dependencies here (e.g. development dependencies).
     # You can install these using the following syntax, for example:
